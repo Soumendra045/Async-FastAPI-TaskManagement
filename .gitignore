@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 hashing.py
-.env
+# .env
 .env.local
 
 # C extensions
