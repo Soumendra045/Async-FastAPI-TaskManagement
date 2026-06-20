@@ -6,6 +6,7 @@ __pycache__/
 hashing.py
 # .env
 .env.local
+.env/.env
 
 # C extensions
 *.so
