@@ -36,13 +36,22 @@ async def get_all_user(user: user_dependancy, db: async_db):
     # print(users)
     return users
 
-@router.put("/update_user/{user_id}",response_model=UserResponse)
-async def update_user(user_id: int, db: async_db, user: user_dependancy, user_data: AdminUserUpdate):
+@router.get("/user/{user_id}",response_model=UserResponse)
+async def get_user(user_id: int, db: async_db, user: user_dependancy):
+    if user.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You are not authorized to access this resource"
+        )
+    result = await db.execute(Select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required"
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
         )
+    return user
+
+@router.put("/update_user/{user_id}",response_model=UserResponse)
+async def update_user(user_id: int, db: async_db, user: user_dependancy, user_data: AdminUserUpdate):
     if user.get("role") != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="You are not authorized to access this resource"

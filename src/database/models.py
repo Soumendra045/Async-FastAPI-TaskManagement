@@ -36,3 +36,24 @@ class Project(Base):
         back_populates="projects",
         lazy="selectin"
     )
+
+    comments: Mapped[List['Comment']] = relationship(
+        back_populates="project",
+        cascade="all, delete-orphan"
+    )
+
+
+class Comment(Base):
+    __tablename__ = 'comments'
+    id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
+    comment: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now(), onupdate=func.now())
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"),nullable=False)
+    project: Mapped["Project"] = relationship(
+        back_populates="comments",
+        lazy="selectin"
+    )

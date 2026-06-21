@@ -1,4 +1,5 @@
-from sqlalchemy import Select
+import asyncio
+from sqlalchemy import Select, or_
 from fastapi import APIRouter, Depends, status, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,9 +24,16 @@ async_db = Annotated[AsyncSession, Depends(get_db)]
 user_dependancy = Annotated[dict, Depends(get_current_user)]
 
 
-@router.post("/user_create")
-@limiter.limit("10/minute")
+@router.post("/user_create", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+# @limiter.limit("10/minute")
 async def create_user(user: UserCreate, db: async_db, request: Request):
+    result = await db.execute(Select(User).where(or_(User.email == user.email, User.name == user.name)))
+    existing_user = result.scalars().first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email or username already exists"
+        )
     db_user = User(
         name=user.name, email=user.email, password=bcrypt.hash(user.password)
     )
@@ -38,18 +46,7 @@ async def create_user(user: UserCreate, db: async_db, request: Request):
 
 
 
-@router.get("/user/{user_id}",response_model=UserResponse)
-async def get_user(user_id: int, db: async_db, user: user_dependancy):
-    result = await db.execute(Select(User).where(User.id == user_id))
-    user = result.scalar_one_or_none()
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
-    return user
-
-
-@router.put("/user",response_model=UserResponse)
+@router.put("/user",response_model=UserResponse,status_code=status.HTTP_200_OK)
 async def update_user(user_update: UserUpdate, db: async_db, user: user_dependancy):
     result = await db.execute(Select(User).where(User.id == user.get("id")))
     user = result.scalar_one_or_none()
@@ -67,7 +64,7 @@ async def update_user(user_update: UserUpdate, db: async_db, user: user_dependan
     return user
 
 
-@router.delete("/user/delete")
+@router.delete("/user/delete",status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(db: async_db, user: user_dependancy):
     result = await db.execute(Select(User).where(User.id == user.get("id")))
     user = result.scalar_one_or_none()

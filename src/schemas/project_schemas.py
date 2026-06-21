@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 from datetime import datetime
-from enum import Enum
+# from enum import Enum
 
 class ProjectCreate(BaseModel):
     title: str
@@ -21,5 +21,6 @@ class ProjectResponse(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
+    # comments_count: int
     owner: OwnerDetails
     model_config = ConfigDict(from_attributes=True)

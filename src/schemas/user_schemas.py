@@ -3,7 +3,7 @@ from typing import Optional, List
 from datetime import datetime
 
 class UserCreate(BaseModel):
-    name: str = Field(... ,min_length=3 ,max_length=50)
+    name: str = Field(... ,min_length=3 ,max_length=50,unique=True)
     email: EmailStr
     password: str = Field(... ,min_length=8 ,max_length=100)
 

@@ -4,10 +4,11 @@ from src.routers.user_router import router as user_router
 from src.auth.login_router import router as login_router
 from src.routers.project_router import router as project_router
 from src.routers.admin_user import router as admin_router
+from src.routers.comment_router import router as comment_router
 
-from slowapi.errors import RateLimitExceeded
-from src.rate_limit.rate_limit import limiter
-from slowapi import _rate_limit_exceeded_handler
+# from slowapi.errors import RateLimitExceeded
+# from src.rate_limit.rate_limit import limiter
+# from slowapi import _rate_limit_exceeded_handler
 
 from guard import SecurityConfig, SecurityMiddleware
 
@@ -29,13 +30,14 @@ app.add_middleware(
 
 # app.add_middleware(SecurityMiddleware, config=config)
 
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# app.state.limiter = limiter
+# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(login_router)
 app.include_router(user_router)
 app.include_router(admin_router)
 app.include_router(project_router)
+app.include_router(comment_router)
 
 @app.on_event("startup")
 async def startup_event():
