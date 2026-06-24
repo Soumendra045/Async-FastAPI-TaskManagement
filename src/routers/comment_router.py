@@ -38,7 +38,10 @@ async def create_comment(comment: CommentCreate,user: user_dependancy, db: db_de
 
 @router.get('/get-all-comments-by-project-id', response_model=List[CommentResponse])
 async def all_comments(user: user_dependancy, db: db_dependancy):
-    results = await db.execute(Select(Comment).where(Comment.user_id == user.get('id')))
+    if user.get('role') == 'admin':
+        results = await db.execute(Select(Comment))
+    else:
+        results = await db.execute(Select(Comment).where(Comment.user_id == user.get('id')))
     comments = results.scalars().all()
 
     return comments

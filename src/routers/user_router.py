@@ -1,6 +1,7 @@
+from src.email_config.email import send_welcome_mail
 import asyncio
 from sqlalchemy import Select, or_
-from fastapi import APIRouter, Depends, status, HTTPException, Request
+from fastapi import APIRouter, Depends, status, HTTPException, Request, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.database import get_db
@@ -12,6 +13,7 @@ from passlib.context import CryptContext
 
 from src.auth.auth import get_current_user
 from src.rate_limit.rate_limit import limiter
+
 
 router = APIRouter(
     tags=["users"]
@@ -26,7 +28,7 @@ user_dependancy = Annotated[dict, Depends(get_current_user)]
 
 @router.post("/user_create", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 # @limiter.limit("10/minute")
-async def create_user(user: UserCreate, db: async_db, request: Request):
+async def create_user(user: UserCreate, db: async_db, request: Request, background_task: BackgroundTasks):
     result = await db.execute(Select(User).where(or_(User.email == user.email, User.name == user.name)))
     existing_user = result.scalars().first()
     if existing_user:
@@ -42,8 +44,13 @@ async def create_user(user: UserCreate, db: async_db, request: Request):
     await db.commit()
     await db.refresh(db_user)
 
-    return db_user
+    background_task.add_task(
+        send_welcome_mail,
+        db_user.email,
+        db_user.name
+    )
 
+    return db_user
 
 
 @router.put("/user",response_model=UserResponse,status_code=status.HTTP_200_OK)

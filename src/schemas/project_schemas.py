@@ -24,3 +24,8 @@ class ProjectResponse(BaseModel):
     # comments_count: int
     owner: OwnerDetails
     model_config = ConfigDict(from_attributes=True)
+
+class ProjectUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None

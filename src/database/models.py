@@ -9,8 +9,8 @@ from typing import List
 class User(Base):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    name: Mapped[str] = mapped_column(String(50), nullable=False)
-    email: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(50), nullable=False,index=True)
+    email: Mapped[str] = mapped_column(String(50), nullable=False, unique=True, index=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     create_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())
     update_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now(), onupdate=func.now())
@@ -25,7 +25,7 @@ class User(Base):
 class Project(Base):
     __tablename__ = 'projects'
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False,index=True)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[str] = mapped_column(Enum('pending', 'in_progress', 'completed'), nullable=False, default='pending')
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=func.now())

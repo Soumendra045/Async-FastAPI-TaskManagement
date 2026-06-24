@@ -52,5 +52,6 @@ async def get_current_user(toekn: Annotated[str, Depends(oauth2_bearer)], db: db
         if username is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
         return {'username': username, 'id': id, 'role':role}
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')

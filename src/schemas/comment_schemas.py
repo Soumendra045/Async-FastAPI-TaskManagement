@@ -28,7 +28,7 @@ class CommentResponse(BaseModel):
     comment: str
     created_at: datetime
     updated_at: datetime
-    # user_id: int
+    user_id: int
     project: ProjectResponseForComment
     model_config = ConfigDict(from_attributes=True)
 
